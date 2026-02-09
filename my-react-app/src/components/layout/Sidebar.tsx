@@ -8,8 +8,8 @@ import {
   CreditCard,
   Settings,
   LogOut,
-  ChevronLeft,
   ChevronRight,
+  Menu,
 } from 'lucide-react';
 import { useAuth, type UserRole } from '@/context/AuthContext';
 
@@ -67,9 +67,10 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
 
         <button
           onClick={onToggle}
-          className={`p-1.5 rounded-lg hover:bg-white/10 transition-colors lg:hidden`}
+          className="p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
+          aria-label="Toggle Sidebar"
         >
-          <ChevronLeft className="w-5 h-5 text-white/50" />
+          <Menu className="w-5 h-5" />
         </button>
       </div>
 

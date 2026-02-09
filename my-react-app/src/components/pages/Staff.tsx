@@ -16,6 +16,7 @@ import SearchInput from '@/components/ui/SearchInput';
 import StatCard from '@/components/ui/StatCard';
 
 const Staff: React.FC = () => {
+  console.log('--- Staff Control Center V2 Loaded ---');
   const { staff, staffPagination, refreshStaff, projects } = useApp();
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
@@ -24,6 +25,7 @@ const Staff: React.FC = () => {
   const [editingStaff, setEditingStaff] = useState<StaffType | null>(null);
   const [selectedStaff, setSelectedStaff] = useState<StaffType | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'name', direction: 'asc' });
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -42,18 +44,19 @@ const Staff: React.FC = () => {
     }
   }, [location, navigate]);
 
-  // Debounced search/filter effect
+  // Debounced search effect
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      refreshStaff(1, staffPagination.limit || 5, search);
+      refreshStaff(1, staffPagination.limit || 10, search, roleFilter, sortConfig.key, sortConfig.direction);
     }, 500);
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Role filter effect
+  // Immediate role/sort filter effect
   React.useEffect(() => {
-    refreshStaff(1, staffPagination.limit || 10, search);
-  }, [roleFilter]);
+    refreshStaff(1, staffPagination.limit || 10, search, roleFilter, sortConfig.key, sortConfig.direction);
+  }, [roleFilter, sortConfig]);
+
 
   const handleAddStaff = () => {
     setEditingStaff(null);
@@ -75,7 +78,7 @@ const Staff: React.FC = () => {
       try {
         const response = await api.delete(`/users/${id}`);
         if (response.data.success) {
-          refreshStaff(staffPagination.currentPage, staffPagination.limit, search);
+          refreshStaff(staffPagination.currentPage, staffPagination.limit, search, roleFilter, sortConfig.key, sortConfig.direction);
         }
       } catch (error) {
         console.error('Error deleting staff:', error);
@@ -114,12 +117,15 @@ const Staff: React.FC = () => {
       if (editingStaff) {
         const response = await api.put(`/users/${editingStaff.id}`, payload);
         if (response.data.success) {
-          refreshStaff(staffPagination.currentPage, staffPagination.limit, search);
+          refreshStaff(staffPagination.currentPage, staffPagination.limit, search, roleFilter, sortConfig.key, sortConfig.direction);
         }
       } else {
         const response = await api.post('/users/register', payload);
         if (response.data.success) {
-          refreshStaff(1, staffPagination.limit, '');
+          setSearch('');
+          setRoleFilter('all');
+          setSortConfig({ key: 'name', direction: 'asc' });
+          refreshStaff(1, staffPagination.limit, '', 'all', 'name', 'asc');
         }
       }
       setIsModalOpen(false);
@@ -135,6 +141,7 @@ const Staff: React.FC = () => {
     {
       key: 'name',
       header: 'Staff Member',
+      sortable: true,
       render: (item: StaffType) => (
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
@@ -152,6 +159,7 @@ const Staff: React.FC = () => {
     {
       key: 'role',
       header: 'Role',
+      sortable: true,
       render: (item: StaffType) => (
         <StatusBadge variant="info" className="text-[10px] py-0 h-5">
           {roleLabels[item.role] || item.role}
@@ -161,11 +169,13 @@ const Staff: React.FC = () => {
     {
       key: 'phone',
       header: 'Contact',
+      sortable: true,
       className: 'text-muted-foreground tabular-nums text-xs',
     },
     {
       key: 'joiningDate',
       header: 'Joined',
+      sortable: true,
       render: (item: StaffType) => (
         <span className="text-muted-foreground text-xs">
           {new Date(item.joiningDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -189,6 +199,7 @@ const Staff: React.FC = () => {
       key: 'salary',
       header: 'Salary (Pa)',
       align: 'right' as const,
+      sortable: true,
       render: (item: StaffType) => (
         <span className="text-foreground font-semibold tabular-nums text-xs">
           {formatCurrency(item.salary)}
@@ -228,17 +239,11 @@ const Staff: React.FC = () => {
 
   return (
     <PageContainer variant="dashboard">
-      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-display font-black text-foreground tracking-tighter leading-tight">Personnel Directory</h2>
-          <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-2">
-            Managing {staffPagination.total || 0} professional team members across all departments.
-          </p>
-        </div>
-        <button onClick={handleAddStaff} className="btn-primary gap-2 h-10 px-5 shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98]">
-          <Plus className="w-3.5 h-3.5" />
-          <span className="font-black text-[10px] uppercase tracking-[0.2em]">Add Staff</span>
-        </button>
+      <div className="mb-6">
+        <h2 className="text-3xl font-display font-black text-foreground tracking-tighter leading-tight text-primary">STAFF CONTROL CENTER</h2>
+        <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-2 font-medium">
+          <Users className="w-3 h-3" /> Managing {stats.total} professional team members across architectural departments.
+        </p>
       </div>
 
       <div className="bg-card border border-border/60 rounded-2xl shadow-lg overflow-hidden mb-6 text-sm">
@@ -270,25 +275,34 @@ const Staff: React.FC = () => {
       </div>
 
       <div className="bg-card border border-border/60 rounded-xl p-3 shadow-sm mb-5">
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 items-center">
           <SearchInput
             value={search}
             onChange={setSearch}
-            placeholder="Search team..."
-            className="flex-1"
+            placeholder="Search team member..."
+            className="flex-1 w-full"
           />
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="input-field w-full sm:w-40 md:w-48 h-10 text-xs"
-          >
-            <option value="all">All Roles</option>
-            <option value="admin">Administrator</option>
-            <option value="architect">Architect</option>
-            <option value="hr">HR Manager</option>
-            <option value="accountant">Accountant</option>
-            <option value="intern">Intern</option>
-          </select>
+          <div className="flex gap-3 w-full sm:w-auto h-10">
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="input-field flex-1 sm:w-40 md:w-48 text-xs"
+            >
+              <option value="all">All Roles</option>
+              <option value="admin">Administrator</option>
+              <option value="architect">Architect</option>
+              <option value="hr">HR Manager</option>
+              <option value="accountant">Accountant</option>
+              <option value="intern">Intern</option>
+            </select>
+            <button
+              onClick={handleAddStaff}
+              className="btn-primary flex items-center gap-2 px-5 shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98] whitespace-nowrap"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span className="font-black text-[10px] uppercase tracking-[0.2em]">Add Staff</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -300,7 +314,14 @@ const Staff: React.FC = () => {
         currentPage={staffPagination.currentPage}
         totalPages={staffPagination.pages}
         totalRecords={staffPagination.total}
-        onPageChange={(page) => refreshStaff(page, staffPagination.limit, search, roleFilter)}
+        onPageChange={(page) => refreshStaff(page, staffPagination.limit, search, roleFilter, sortConfig.key, sortConfig.direction)}
+        sortConfig={sortConfig}
+        onSort={(key) => {
+          setSortConfig(prev => ({
+            key,
+            direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+          }));
+        }}
       />
 
       <Modal

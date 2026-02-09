@@ -32,6 +32,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ isOpen, onClose, record, st
                             <MapPin className="w-3.5 h-3.5" />
                             <span>42, Design Square, Bengaluru, KA 560038</span>
                         </div>
+                        <p className="text-[11px] font-bold text-muted-foreground/80 mt-1">GSTIN: 29AABCX1234K1Z5</p>
                     </div>
                     <div className="text-right">
                         <h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Invoice Number</h4>

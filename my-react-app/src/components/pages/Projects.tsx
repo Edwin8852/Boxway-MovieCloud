@@ -99,17 +99,11 @@ const Projects: React.FC = () => {
 
   return (
     <PageContainer variant="dashboard">
-      <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h2 className="text-3xl font-display font-black text-foreground tracking-tighter leading-tight">Project Portfolio</h2>
-          <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
-            Monitoring {projects?.length || 0} architectural projects across various delivery stages.
-          </p>
-        </div>
-        <button onClick={handleAddProject} className="btn-primary gap-2 h-11 px-6 shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98]">
-          <Plus className="w-4 h-4" />
-          <span className="font-black text-[11px] uppercase tracking-[0.2em]">Add Project</span>
-        </button>
+      <div className="mb-8">
+        <h2 className="text-3xl font-display font-black text-foreground tracking-tighter leading-tight">Project Portfolio</h2>
+        <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
+          Monitoring {projects?.length || 0} architectural projects across various delivery stages.
+        </p>
       </div>
 
       {/* Extreme Stats Grid */}
@@ -139,24 +133,33 @@ const Projects: React.FC = () => {
       </div>
 
       <div className="bg-card border border-border/60 rounded-xl p-3 sm:p-4 shadow-sm mb-6">
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center">
           <SearchInput
             value={search}
             onChange={setSearch}
             placeholder="Search portfolio..."
             className="flex-1"
           />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="input-field w-full sm:w-48 md:w-52 h-10 text-xs sm:text-sm"
-          >
-            <option value="all">All Stages</option>
-            <option value="planning">Initial Planning</option>
-            <option value="active">Active Execution</option>
-            <option value="on-hold">On-Hold / Paused</option>
-            <option value="completed">Successfully Completed</option>
-          </select>
+          <div className="flex gap-3 w-full sm:w-auto">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="input-field w-full sm:w-48 md:w-52 h-10 text-xs sm:text-sm"
+            >
+              <option value="all">All Stages</option>
+              <option value="planning">Initial Planning</option>
+              <option value="active">Active Execution</option>
+              <option value="on-hold">On-Hold / Paused</option>
+              <option value="completed">Successfully Completed</option>
+            </select>
+            <button
+              onClick={handleAddProject}
+              className="btn-primary gap-2 h-10 px-5 shadow-lg shadow-primary/20 transition-all hover:shadow-primary/30 active:scale-[0.98] whitespace-nowrap"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span className="font-black text-[10px] uppercase tracking-[0.2em]">Add Project</span>
+            </button>
+          </div>
         </div>
       </div>
 

@@ -13,18 +13,20 @@ export interface PaginationData {
 interface AppContextType {
     staff: Staff[];
     staffPagination: PaginationData;
-    refreshStaff: (page?: number, limit?: number, search?: string, role?: string) => Promise<void>;
+    refreshStaff: (page?: number, limit?: number, search?: string, role?: string, sortBy?: string, sortOrder?: 'asc' | 'desc') => Promise<void>;
     clients: Client[];
     clientPagination: PaginationData;
     refreshClients: (page?: number, limit?: number, search?: string) => Promise<void>;
     projects: Project[];
     projectPagination: PaginationData;
     refreshProjects: (page?: number, limit?: number, search?: string, status?: string) => Promise<void>;
+    updateProject: (projectId: string, data: Partial<Project>) => Promise<void>;
     payroll: PayrollRecord[];
     payrollPagination: PaginationData;
     refreshPayroll: (page?: number, limit?: number, month?: string, year?: string, status?: string) => Promise<void>;
     updatePayrollStatus: (recordId: string, status: 'pending' | 'approved' | 'paid') => Promise<void>;
     setPayroll: (payroll: PayrollRecord[]) => void;
+    updateClient: (clientId: string, data: Partial<Client>) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -50,13 +52,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [payroll, setPayroll] = useState<PayrollRecord[]>([]);
     const [payrollPagination, setPayrollPagination] = useState<PaginationData>(initialPagination);
 
-    const refreshStaff = async (page = 1, limit = 10, search = '', role = 'all') => {
+    const refreshStaff = async (page = 1, limit = 10, search = '', role = 'all', sortBy = '', sortOrder: 'asc' | 'desc' = 'asc') => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
         try {
-            const roleParam = role !== 'all' ? `&role=${role}` : '';
-            const response = await api.get(`/users?page=${page}&limit=${limit}&search=${search}${roleParam}`);
+            // Capitalize role for backend if it's not 'all'
+            const activeRole = role !== 'all' ? role.charAt(0).toUpperCase() + role.slice(1) : 'all';
+            const roleParam = activeRole !== 'all' ? `&role=${activeRole}` : '';
+            const sortParam = sortBy ? `&sortBy=${sortBy}&sortOrder=${sortOrder}` : '';
+
+            const response = await api.get(`/users?page=${page}&limit=${limit}&search=${search}${roleParam}${sortParam}`);
             if (response.data.success && Array.isArray(response.data.data)) {
                 const mappedStaff = response.data.data.map((user: any) => ({
                     id: user._id,
@@ -113,6 +119,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
     };
 
+    const updateClient = async (clientId: string, data: Partial<Client>) => {
+        try {
+            const response = await api.put(`/clients/${clientId}`, data);
+            if (response.data.success) {
+                await refreshClients(clientPagination.currentPage, clientPagination.limit);
+            }
+        } catch (error) {
+            console.error('Error updating client:', error);
+        }
+    };
+
     const refreshProjects = async (page = 1, limit = 10, search = '', status = 'all') => {
         const token = localStorage.getItem('token');
         if (!token) return;
@@ -142,6 +159,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         } catch (error) {
             console.error('Error fetching projects:', error);
             setProjects([]);
+        }
+    };
+
+    const updateProject = async (projectId: string, data: Partial<Project>) => {
+        try {
+            const response = await api.put(`/projects/${projectId}`, data);
+            if (response.data.success) {
+                await refreshProjects(projectPagination.currentPage, projectPagination.limit);
+            }
+        } catch (error) {
+            console.error('Error updating project:', error);
         }
     };
 
@@ -210,8 +238,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         <AppContext.Provider value={{
             staff, staffPagination, refreshStaff,
             clients, clientPagination, refreshClients,
-            projects, projectPagination, refreshProjects,
-            payroll, payrollPagination, refreshPayroll, updatePayrollStatus, setPayroll
+            projects, projectPagination, refreshProjects, updateProject,
+            payroll, payrollPagination, refreshPayroll, updatePayrollStatus, setPayroll,
+            updateClient
         }}>
             {children}
         </AppContext.Provider>

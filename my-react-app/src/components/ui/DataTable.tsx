@@ -6,6 +6,7 @@ interface Column<T> {
   render?: (item: T) => React.ReactNode;
   className?: string;
   align?: 'left' | 'center' | 'right';
+  sortable?: boolean;
 }
 
 interface DataTableProps<T> {
@@ -19,6 +20,8 @@ interface DataTableProps<T> {
   totalPages?: number;
   onPageChange?: (page: number) => void;
   totalRecords?: number;
+  sortConfig?: { key: string; direction: 'asc' | 'desc' };
+  onSort?: (key: string) => void;
 }
 
 function DataTable<T extends { id: string }>({
@@ -31,6 +34,8 @@ function DataTable<T extends { id: string }>({
   totalPages,
   onPageChange,
   totalRecords,
+  sortConfig,
+  onSort,
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
@@ -68,9 +73,18 @@ function DataTable<T extends { id: string }>({
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-6 py-4 text-[10px] font-bold text-[#1F1F1F]/60 uppercase tracking-widest ${column.className || ''} ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'}`}
+                  onClick={() => column.sortable && onSort?.(column.key)}
+                  className={`px-6 py-4 text-[10px] font-bold text-[#1F1F1F]/60 uppercase tracking-widest ${column.className || ''} ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'} ${column.sortable ? 'cursor-pointer hover:text-[#CFAE70] transition-colors group/th' : ''}`}
                 >
-                  {column.header}
+                  <div className={`flex items-center gap-2 ${column.align === 'right' ? 'justify-end' : column.align === 'center' ? 'justify-center' : 'justify-start'}`}>
+                    {column.header}
+                    {column.sortable && (
+                      <div className="flex flex-col opacity-20 group-hover/th:opacity-100 transition-opacity">
+                        <svg className={`w-2 h-2 ${sortConfig?.key === column.key && sortConfig.direction === 'asc' ? 'text-[#CFAE70] opacity-100' : ''}`} viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-8 8h16z" /></svg>
+                        <svg className={`w-2 h-2 ${sortConfig?.key === column.key && sortConfig.direction === 'desc' ? 'text-[#CFAE70] opacity-100' : ''}`} viewBox="0 0 24 24" fill="currentColor"><path d="M12 20l8-8H4z" /></svg>
+                      </div>
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>

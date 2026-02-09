@@ -5,20 +5,20 @@ import {
     Calendar,
     CreditCard,
     Layers,
-    Clock,
     AlertCircle,
     MapPin,
 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { formatCurrency } from '@/utils/formatters';
-import { projectPhaseLabels } from '@/utils/mockData';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { PageContainer } from '@/components/ui/Layout';
+import ProjectPhases from '@/components/projects/ProjectPhases';
+import type { PhaseStatus } from '@/types';
 
 const ProjectDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { projects, clients, staff } = useApp();
+    const { projects, clients, staff, updateProject } = useApp();
 
     const project = useMemo(() =>
         projects.find(p => p.id === id),
@@ -27,6 +27,26 @@ const ProjectDetail: React.FC = () => {
     const client = useMemo(() =>
         clients.find(c => c.id === project?.clientId),
         [clients, project]);
+
+    const handleUpdatePhase = async (phaseIndex: number, status: PhaseStatus) => {
+        if (!project) return;
+        const updatedPhases = [...project.phases];
+        updatedPhases[phaseIndex] = { ...updatedPhases[phaseIndex], status };
+
+        // Calculate new progress based on completed phases
+        const completedCount = updatedPhases.filter(p => p.status === 'completed').length;
+        const newProgress = Math.round((completedCount / updatedPhases.length) * 100);
+
+        await updateProject(project.id, {
+            phases: updatedPhases,
+            progress: newProgress
+        });
+    };
+
+    const handleUpdateAllPhases = async (phases: any[], progress: number) => {
+        if (!project) return;
+        await updateProject(project.id, { phases, progress });
+    };
 
     if (!project) {
         return (
@@ -110,47 +130,11 @@ const ProjectDetail: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-4">
-                            {project.phases.map((phase, index) => (
-                                <div
-                                    key={index}
-                                    className={`relative pl-8 sm:pl-10 pb-6 sm:pb-8 last:pb-0 border-l ${phase.status === 'completed' ? 'border-primary' : 'border-border'
-                                        }`}
-                                >
-                                    <div className={`absolute left-[-5px] sm:left-[-9px] top-0 w-2.5 h-2.5 sm:w-4 sm:h-4 rounded-full border-2 sm:border-4 border-background shadow-sm transition-all duration-500 ${phase.status === 'completed' ? 'bg-primary scale-110' :
-                                        phase.status === 'in-progress' ? 'bg-info animate-pulse' : 'bg-muted'
-                                        }`} />
-
-                                    <div className={`p-4 sm:p-6 rounded-xl sm:rounded-[1.5rem] border transition-all ${phase.status === 'in-progress'
-                                        ? 'bg-info/5 border-info/30 shadow-md translate-x-1 sm:translate-x-2'
-                                        : 'bg-muted/10 border-transparent hover:border-border/60'
-                                        }`}>
-                                        <div className="flex items-center justify-between mb-2 sm:mb-3">
-                                            <h4 className={`font-bold tracking-tight text-sm sm:text-base ${phase.status === 'completed' ? 'text-primary' :
-                                                phase.status === 'in-progress' ? 'text-foreground sm:text-lg' : 'text-muted-foreground'
-                                                }`}>
-                                                {index + 1}. {projectPhaseLabels[phase.phase]}
-                                            </h4>
-                                            <StatusBadge variant={
-                                                phase.status === 'completed' ? 'success' :
-                                                    phase.status === 'in-progress' ? 'info' : 'default'
-                                            } className="text-[8px] sm:text-[9px] font-black">
-                                                {phase.status}
-                                            </StatusBadge>
-                                        </div>
-                                        {phase.status === 'in-progress' && (
-                                            <p className="text-xs sm:text-sm text-foreground/70 leading-relaxed max-w-lg mb-3 sm:mb-4">
-                                                Actively iterating on architectural visualizers and material selection.
-                                            </p>
-                                        )}
-                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                                            <span className="flex items-center gap-1.5"><Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Start: {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                                            <span className="flex items-center gap-1.5"><Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> 14 Days</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <ProjectPhases
+                            project={project}
+                            onUpdatePhase={handleUpdatePhase}
+                            onUpdateAllPhases={handleUpdateAllPhases}
+                        />
                     </div>
                 </div>
 

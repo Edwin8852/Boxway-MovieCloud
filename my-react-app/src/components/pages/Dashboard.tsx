@@ -18,7 +18,6 @@ import { projectPhaseLabels } from '@/utils/mockData';
 import { PageContainer } from '@/components/ui/Layout';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import DashboardDetailModal from '@/components/ui/DashboardDetailModal';
-import ClockAndCalendar from '@/components/ui/ClockAndCalendar';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -69,20 +68,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <PageContainer>
-      {/* Hero Section & Quick Actions */}
-      <div className="mb-8 flex flex-col xl:flex-row xl:items-center justify-between gap-8">
-        <div>
-          <h2 className="text-3xl font-display font-black text-foreground tracking-tighter leading-tight">
-            Welcome back, {user?.name.split(' ')[0] || 'User'}!
-          </h2>
-          <p className="text-[13px] font-medium text-muted-foreground mt-2 flex items-center gap-2">
-            Managing {isAdmin ? 'global organization operations' : 'assigned project portfolios'} today.
-          </p>
-        </div>
-        <div className="flex xl:justify-end">
-          <ClockAndCalendar />
-        </div>
-      </div>
+      <div className="mt-2" />
 
       {/* Admin Dashboard - Extreme Overhaul */}
       {isAdmin && (

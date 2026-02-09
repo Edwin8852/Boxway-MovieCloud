@@ -10,6 +10,7 @@ interface CompanySettings {
   email: string;
   phone: string;
   address: string;
+  gstNumber: string;
   logo: string;
 }
 
@@ -29,6 +30,7 @@ const Settings: React.FC = () => {
     email: 'info@boxway.in',
     phone: '+91 98765 43210',
     address: '42, Design Square, Indiranagar, Bengaluru, Karnataka 560038',
+    gstNumber: '29AABCX1234K1Z5',
     logo: '',
   });
 
@@ -170,6 +172,16 @@ const Settings: React.FC = () => {
                         value={companySettings.address}
                         onChange={(e) => setCompanySettings({ ...companySettings, address: e.target.value })}
                         className="input-field resize-none py-3 h-auto"
+                      />
+                    </FormField>
+
+                    <FormField label="GST Identification Number (GSTIN)">
+                      <input
+                        type="text"
+                        value={companySettings.gstNumber}
+                        onChange={(e) => setCompanySettings({ ...companySettings, gstNumber: e.target.value })}
+                        className="input-field tabular-nums"
+                        placeholder="e.g. 29AABCX1234K1Z5"
                       />
                     </FormField>
                   </FormGrid>
