@@ -213,12 +213,6 @@ const Clients: React.FC = () => {
 
   return (
     <PageContainer>
-      <div className="mb-8">
-        <h2 className="text-3xl font-display font-black text-foreground tracking-tighter leading-tight">Client Directory</h2>
-        <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
-          Managing {clients?.length || 0} active client accounts and their respective sites.
-        </p>
-      </div>
 
       {/* Extreme Stats Grid */}
       <div className="bg-card border border-border/60 rounded-[1.5rem] sm:rounded-[2rem] shadow-xl overflow-hidden mb-8 sm:mb-10">

@@ -99,12 +99,6 @@ const Projects: React.FC = () => {
 
   return (
     <PageContainer variant="dashboard">
-      <div className="mb-8">
-        <h2 className="text-3xl font-display font-black text-foreground tracking-tighter leading-tight">Project Portfolio</h2>
-        <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
-          Monitoring {projects?.length || 0} architectural projects across various delivery stages.
-        </p>
-      </div>
 
       {/* Extreme Stats Grid */}
       <div className="bg-card border border-border/60 rounded-[1.5rem] sm:rounded-[2rem] shadow-xl overflow-hidden mb-8 sm:mb-10">

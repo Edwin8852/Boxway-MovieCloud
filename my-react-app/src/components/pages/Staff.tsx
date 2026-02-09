@@ -239,12 +239,6 @@ const Staff: React.FC = () => {
 
   return (
     <PageContainer variant="dashboard">
-      <div className="mb-6">
-        <h2 className="text-3xl font-display font-black text-foreground tracking-tighter leading-tight text-primary">STAFF CONTROL CENTER</h2>
-        <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-2 font-medium">
-          <Users className="w-3 h-3" /> Managing {stats.total} professional team members across architectural departments.
-        </p>
-      </div>
 
       <div className="bg-card border border-border/60 rounded-2xl shadow-lg overflow-hidden mb-6 text-sm">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border/40">

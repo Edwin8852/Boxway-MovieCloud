@@ -53,15 +53,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
         } border-r border-white/5 shadow-2xl lg:shadow-none`}
     >
       {/* Logo */}
-      <div className="h-20 flex items-center justify-between px-6 border-b border-white/10 shrink-0">
-        <div className={`flex items-center gap-3 text-white ${collapsed ? 'lg:hidden' : 'flex'}`}>
-          <Logo size={24} />
-          <span className="font-bold text-xl tracking-[0.1em] uppercase">Boxway</span>
-        </div>
-
-        {collapsed && (
-          <div className="hidden lg:flex items-center justify-center mx-auto text-white">
-            <Logo size={28} />
+      <div className={`h-20 flex items-center border-b border-white/10 shrink-0 ${collapsed ? 'justify-center px-0' : 'justify-between px-6'}`}>
+        {!collapsed && (
+          <div className="flex items-center gap-3 text-white">
+            <Logo size={24} />
+            <span className="font-bold text-xl tracking-[0.1em] uppercase">Boxway</span>
           </div>
         )}
 

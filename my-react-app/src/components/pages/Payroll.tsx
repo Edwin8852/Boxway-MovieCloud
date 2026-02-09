@@ -197,13 +197,7 @@ const Payroll: React.FC = () => {
 
   return (
     <PageContainer variant="dashboard">
-      <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h2 className="text-3xl font-display font-black text-foreground tracking-tighter leading-tight">Staff Payroll</h2>
-          <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-2">
-            Overseeing staff compensation, attendance-based deductions, and performance bonuses.
-          </p>
-        </div>
+      <div className="mb-6 flex justify-end">
         <div className="flex items-center gap-3">
           <select
             value={selectedMonth}
@@ -267,27 +261,29 @@ const Payroll: React.FC = () => {
         onPageChange={(page) => refreshPayroll(page, payrollPagination.limit, selectedMonth, selectedYear.toString())}
       />
 
-      {isAdmin && totalPending > 0 && (
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={async () => {
-              const pending = filteredPayroll.filter(p => p.status === 'pending');
-              await Promise.all(pending.map(p => updatePayrollStatus(p.id, 'approved')));
-            }}
-            className="btn-primary gap-2 h-10 px-6"
-          >
-            <CheckCircle className="w-4 h-4" />
-            <span>Approve All Pending ({totalPending})</span>
-          </button>
-        </div>
-      )}
+      {
+        isAdmin && totalPending > 0 && (
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={async () => {
+                const pending = filteredPayroll.filter(p => p.status === 'pending');
+                await Promise.all(pending.map(p => updatePayrollStatus(p.id, 'approved')));
+              }}
+              className="btn-primary gap-2 h-10 px-6"
+            >
+              <CheckCircle className="w-4 h-4" />
+              <span>Approve All Pending ({totalPending})</span>
+            </button>
+          </div>
+        )
+      }
       <InvoiceModal
         isOpen={isInvoiceModalOpen}
         onClose={() => setIsInvoiceModalOpen(false)}
         record={selectedRecord}
         staff={selectedStaffMember}
       />
-    </PageContainer>
+    </PageContainer >
   );
 };
 

@@ -78,35 +78,24 @@ const ProjectDetail: React.FC = () => {
                     <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest">Back to Portfolio</span>
                 </button>
 
-                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 sm:gap-10">
-                    <div className="max-w-3xl">
-                        <div className="flex items-center gap-3 mb-4 sm:mb-6">
-                            <StatusBadge variant={project.status === 'active' ? 'info' : 'default'} className="px-2.5 sm:px-3 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]">
-                                {project.status}
-                            </StatusBadge>
-                            <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-border" />
-                            <span className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-                                ID: {project.id.slice(-6).toUpperCase()}
-                            </span>
-                        </div>
-                        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-display font-black text-foreground tracking-tighter leading-[0.95] sm:leading-[0.9]">
-                            {project.name}
-                        </h1>
-                        <p className="text-base sm:text-lg text-muted-foreground mt-4 sm:mt-6 leading-relaxed font-medium">
-                            {project.description}
-                        </p>
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8 bg-card border border-border/60 p-5 rounded-[1.5rem] shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <StatusBadge variant={project.status === 'active' ? 'info' : 'default'} className="px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em]">
+                            {project.status}
+                        </StatusBadge>
+                        <div className="w-1 h-1 rounded-full bg-border" />
+                        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
+                            PROJECT ID: {project.id.slice(-8).toUpperCase()}
+                        </span>
                     </div>
 
-                    <div className="flex flex-col lg:items-end gap-1">
-                        <p className="text-[10px] sm:text-[11px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2">Primary Client</p>
-                        <div className="flex items-center gap-3 bg-card border border-border/60 p-3 sm:p-4 rounded-xl sm:rounded-2xl shadow-sm self-start lg:self-auto">
-                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-black text-xs">
+                    <div className="flex items-center gap-3">
+                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Client:</p>
+                        <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-black text-[10px]">
                                 {client?.name[0]}
                             </div>
-                            <div>
-                                <h4 className="text-[12px] sm:text-[13px] font-bold text-foreground leading-none">{client?.name}</h4>
-                                <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-1.5">{client?.company || 'Private Client'}</p>
-                            </div>
+                            <h4 className="text-[12px] font-bold text-foreground">{client?.name}</h4>
                         </div>
                     </div>
                 </div>

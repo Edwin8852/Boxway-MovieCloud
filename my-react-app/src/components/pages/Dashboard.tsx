@@ -68,7 +68,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <PageContainer>
-      <div className="mt-2" />
 
       {/* Admin Dashboard - Extreme Overhaul */}
       {isAdmin && (
