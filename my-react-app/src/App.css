@@ -1,0 +1,11 @@
+/* Clear default Vite root constraints */
+#root {
+  width: 100%;
+}
+
+#button,
+input,
+select,
+textarea {
+  border-radius: 0 !important;
+}
