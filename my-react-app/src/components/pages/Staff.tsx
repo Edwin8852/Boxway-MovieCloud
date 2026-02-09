@@ -170,15 +170,19 @@ const Staff: React.FC = () => {
       key: 'phone',
       header: 'Contact',
       sortable: true,
-      className: 'text-muted-foreground tabular-nums text-xs',
+      render: (item: StaffType) => (
+        <span className="text-muted-foreground tabular-nums text-xs">
+          {item.phone || 'Not provided'}
+        </span>
+      ),
     },
     {
       key: 'joiningDate',
       header: 'Joined',
       sortable: true,
       render: (item: StaffType) => (
-        <span className="text-muted-foreground text-xs">
-          {new Date(item.joiningDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+        <span className="text-muted-foreground text-xs font-medium">
+          {new Date(item.joiningDate).toLocaleDateString()}
         </span>
       ),
     },

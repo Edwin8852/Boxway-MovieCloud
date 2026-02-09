@@ -74,7 +74,7 @@ function DataTable<T extends { id: string }>({
                 <th
                   key={column.key}
                   onClick={() => column.sortable && onSort?.(column.key)}
-                  className={`px-6 py-4 text-[10px] font-bold text-[#1F1F1F]/60 uppercase tracking-widest ${column.className || ''} ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'} ${column.sortable ? 'cursor-pointer hover:text-[#CFAE70] transition-colors group/th' : ''}`}
+                  className={`px-6 py-4 text-[10px] font-bold text-[#1F1F1F]/60 uppercase tracking-widest ${column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left'} ${column.sortable ? 'cursor-pointer hover:text-[#CFAE70] transition-colors group/th' : ''}`}
                 >
                   <div className={`flex items-center gap-2 ${column.align === 'right' ? 'justify-end' : column.align === 'center' ? 'justify-center' : 'justify-start'}`}>
                     {column.header}
