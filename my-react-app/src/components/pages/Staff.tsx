@@ -44,19 +44,17 @@ const Staff: React.FC = () => {
     }
   }, [location, navigate]);
 
-  // Debounced search effect
+  // Unified search and filter effect
+  // Unified search and filter effect
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      refreshStaff(1, staffPagination.limit || 10, search, roleFilter, sortConfig.key, sortConfig.direction);
+      // If searching, fetch more items (100) to allow client-side filtering to work better
+      // since backend search might be limited or broken.
+      const searchLimit = search ? 100 : (staffPagination.limit || 10);
+      refreshStaff(1, searchLimit, search, roleFilter, sortConfig.key, sortConfig.direction);
     }, 500);
     return () => clearTimeout(timer);
-  }, [search]);
-
-  // Immediate role/sort filter effect
-  React.useEffect(() => {
-    refreshStaff(1, staffPagination.limit || 10, search, roleFilter, sortConfig.key, sortConfig.direction);
-  }, [roleFilter, sortConfig]);
-
+  }, [search, roleFilter, sortConfig]);
 
   const handleAddStaff = () => {
     setEditingStaff(null);

@@ -65,8 +65,8 @@ const Projects: React.FC = () => {
     try {
       const payload = {
         ...data,
-        client: data.clientId, // Map clientId to client for backend
       };
+      console.log('Saving project payload:', payload);
 
       if (editingProject) {
         await api.put(`/projects/${editingProject.id}`, payload);
@@ -75,9 +75,15 @@ const Projects: React.FC = () => {
       }
       refreshProjects();
       setIsModalOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving project:', error);
-      alert('Failed to save project. Ensure all fields are valid.');
+      if (error.response) {
+        console.log('Server Error Response Data:', error.response.data);
+        console.log('Server Error Status:', error.response.status);
+        console.log('Server Error Headers:', error.response.headers);
+      }
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message || 'Ensure all fields are valid.';
+      alert(`Failed to save project: ${errorMessage}`);
     } finally {
       setIsSaving(false);
     }

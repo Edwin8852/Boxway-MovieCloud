@@ -16,6 +16,7 @@ import { Users, Building2, CreditCard } from 'lucide-react';
 const Clients: React.FC = () => {
   const { clients, clientPagination, refreshClients, projects } = useApp();
   const [search, setSearch] = useState('');
+  const [sortConfig, setSortConfig] = useState<{ field: string; order: 'asc' | 'desc' }>({ field: 'createdAt', order: 'desc' });
   const [paymentFilter, setPaymentFilter] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -29,13 +30,15 @@ const Clients: React.FC = () => {
     };
   }, [clients, clientPagination]);
 
-  // Debounced search effect
+  // Unified search and sort effect
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      refreshClients(1, 10, search);
+      // If searching, fetch more items (100) to allow client-side filtering to work better
+      const searchLimit = search ? 100 : (clientPagination.limit || 10);
+      refreshClients(1, searchLimit, search, sortConfig.field, sortConfig.order);
     }, 500);
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [search, sortConfig]);
 
   const filteredClients = useMemo(() => {
     if (!Array.isArray(clients)) return [];
@@ -59,7 +62,7 @@ const Clients: React.FC = () => {
     if (confirm('Are you sure you want to delete this client?')) {
       try {
         await api.delete(`/clients/${id}`);
-        refreshClients();
+        refreshClients(clientPagination.currentPage, clientPagination.limit, search, sortConfig.field, sortConfig.order);
       } catch (error) {
         console.error('Error deleting client:', error);
         alert('Failed to delete client.');
@@ -75,7 +78,7 @@ const Clients: React.FC = () => {
       } else {
         await api.post('/clients', data);
       }
-      refreshClients();
+      refreshClients(clientPagination.currentPage, clientPagination.limit, search, sortConfig.field, sortConfig.order);
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error saving client:', error);
@@ -181,7 +184,7 @@ const Clients: React.FC = () => {
           <a
             href={`mailto:${item.email}`}
             onClick={(e) => e.stopPropagation()}
-            className="p-1.5 rounded-md hover:bg-primary/10 transition-colors text-primary"
+            className="p-1.5 rounded-md hover:bg-primary/10 transition-colors text-primary relative z-50 cursor-pointer block"
             title="Send Email"
           >
             <Mail className="w-4 h-4" />
@@ -250,6 +253,20 @@ const Clients: React.FC = () => {
           />
           <div className="flex gap-3 w-full sm:w-auto">
             <select
+              value={sortConfig.field === 'name' ? 'name-asc' : 'newest'}
+              onChange={(e) => {
+                if (e.target.value === 'name-asc') {
+                  setSortConfig({ field: 'name', order: 'asc' });
+                } else {
+                  setSortConfig({ field: 'createdAt', order: 'desc' });
+                }
+              }}
+              className="input-field w-full sm:w-40 h-10 text-xs sm:text-sm"
+            >
+              <option value="newest">Newest First</option>
+              <option value="name-asc">Name (A-Z)</option>
+            </select>
+            <select
               value={paymentFilter}
               onChange={(e) => setPaymentFilter(e.target.value)}
               className="input-field w-full sm:w-48 md:w-52 h-10 text-xs sm:text-sm"
@@ -278,7 +295,7 @@ const Clients: React.FC = () => {
         currentPage={clientPagination.currentPage}
         totalPages={clientPagination.pages}
         totalRecords={clientPagination.total}
-        onPageChange={(page) => refreshClients(page, clientPagination.limit, search)}
+        onPageChange={(page) => refreshClients(page, clientPagination.limit, search, sortConfig.field, sortConfig.order)}
       />
 
       <Modal

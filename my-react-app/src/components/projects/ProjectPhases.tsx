@@ -68,7 +68,7 @@ const ProjectPhases: React.FC<ProjectPhasesProps> = ({ project, onUpdatePhase })
 
             return (
               <div
-                key={phase.phase}
+                key={`${phase.phase}-${index}`}
                 className={`flex flex-col lg:flex-row lg:items-center gap-4 p-4 rounded-xl border transition-all duration-300 relative z-10 ${isActive
                   ? 'border-secondary/40 bg-secondary/5 shadow-sm'
                   : 'border-border/60 bg-card hover:bg-muted/10'

@@ -16,7 +16,7 @@ interface AppContextType {
     refreshStaff: (page?: number, limit?: number, search?: string, role?: string, sortBy?: string, sortOrder?: 'asc' | 'desc') => Promise<void>;
     clients: Client[];
     clientPagination: PaginationData;
-    refreshClients: (page?: number, limit?: number, search?: string) => Promise<void>;
+    refreshClients: (page?: number, limit?: number, search?: string, sortBy?: string, sortOrder?: 'asc' | 'desc') => Promise<void>;
     projects: Project[];
     projectPagination: PaginationData;
     refreshProjects: (page?: number, limit?: number, search?: string, status?: string) => Promise<void>;
@@ -61,8 +61,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             const activeRole = role !== 'all' ? role.charAt(0).toUpperCase() + role.slice(1) : 'all';
             const roleParam = activeRole !== 'all' ? `&role=${activeRole}` : '';
             const sortParam = sortBy ? `&sortBy=${sortBy}&sortOrder=${sortOrder}` : '';
+            const encodedSearch = encodeURIComponent(search);
 
-            const response = await api.get(`/users?page=${page}&limit=${limit}&search=${search}${roleParam}${sortParam}`);
+            console.log(`Fetching staff with: page=${page}, limit=${limit}, search=${encodedSearch}, role=${activeRole}`);
+            const response = await api.get(`/users?page=${page}&limit=${limit}&search=${encodedSearch}${roleParam}${sortParam}`);
             if (response.data.success && Array.isArray(response.data.data)) {
                 const mappedStaff = response.data.data.map((user: any) => ({
                     id: user._id,
@@ -74,7 +76,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                     salary: user.salaryDetails?.basicSalary || 0,
                     assignedProjects: [],
                 }));
-                setStaff(mappedStaff);
+
+                // Client-side filtering fallback
+                let finalStaff = mappedStaff;
+                if (search) {
+                    const lowerSearch = search.toLowerCase();
+                    finalStaff = mappedStaff.filter((s: any) =>
+                        s.name.toLowerCase().includes(lowerSearch) ||
+                        s.email.toLowerCase().includes(lowerSearch) ||
+                        s.role.toLowerCase().includes(lowerSearch)
+                    );
+                }
+
+                setStaff(finalStaff);
                 if (response.data.pagination) {
                     setStaffPagination(response.data.pagination);
                 }
@@ -87,11 +101,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
     };
 
-    const refreshClients = async (page = 1, limit = 10, search = '') => {
+    const refreshClients = async (page = 1, limit = 10, search = '', sortBy = 'createdAt', sortOrder: 'asc' | 'desc' = 'desc') => {
         const token = localStorage.getItem('token');
         if (!token) return;
         try {
-            const response = await api.get(`/clients?page=${page}&limit=${limit}&search=${search}`);
+            const sortParam = sortBy ? `&sortBy=${sortBy}&sortOrder=${sortOrder}` : '';
+            const encodedSearch = encodeURIComponent(search);
+            const response = await api.get(`/clients?page=${page}&limit=${limit}&search=${encodedSearch}${sortParam}`);
             if (response.data.success && Array.isArray(response.data.data)) {
                 const mappedClients = response.data.data.map((client: any) => ({
                     id: client._id,
@@ -106,7 +122,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
                     paymentStatus: client.paymentStatus || 'pending',
                     totalPaid: client.totalPaid || 0,
                 }));
-                setClients(mappedClients);
+
+                // Client-side filtering fallback
+                let finalClients = mappedClients;
+                if (search) {
+                    const lowerSearch = search.toLowerCase();
+                    finalClients = mappedClients.filter((c: any) =>
+                        c.name.toLowerCase().includes(lowerSearch) ||
+                        c.email.toLowerCase().includes(lowerSearch) ||
+                        (c.company && c.company.toLowerCase().includes(lowerSearch))
+                    );
+                }
+
+                setClients(finalClients);
                 if (response.data.pagination) {
                     setClientPagination(response.data.pagination);
                 }
